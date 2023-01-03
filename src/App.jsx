@@ -38,7 +38,15 @@ const reducer=(state,{type,payload})=>{
   }
 }
 
-
+const connect = (Component) => {
+  return (props)=>{
+    const {appState, setAppState} = useContext(appContext)
+    const dispacth=(action)=>{
+      setAppState(reducer(appState,action))
+    }
+    return <Component {...props} dispacth={dispacth} appState={appState}/>
+  }
+}
 
 const _UserModifier = ({dispacth,appState}) => {
   //const {appState, setAppState} = useContext(appContext)
@@ -70,11 +78,4 @@ const _UserModifier = ({dispacth,appState}) => {
       onChange={onChange}/>
   </div>
 }
-const UserModifier=()=>{
-  const {appState, setAppState} = useContext(appContext)
-  const dispacth=(action)=>{
-    setAppState(reducer(appState,action))
-  }
-  return <_UserModifier dispacth={dispacth} appState={appState}/>
-  
-}
+const UserModifier=connect(_UserModifier)
