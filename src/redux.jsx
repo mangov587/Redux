@@ -31,20 +31,23 @@ const createStore = (_reducer, initState) => {
   }
   
 const {dispacth}=store
-const connect = (Component) => {
+const connect =(mapStateToProps,mapDispatchToProps)=>(Component) => {
  
     return (props)=>{
-      //const {state,subscribe} = useContext(appContext)
-      const {getState,subscribe} = store
+      const {subscribe} = store
       const [,forceUpdate]=useReducer((x)=>x+1,0)//更新
-     const state=getState()
-      //更新
+      const data=mapStateToProps?mapStateToProps(state):{state};
+      mapStateToProps&&console.log(mapStateToProps(state))
+
+     const newDispacth=mapDispatchToProps?mapDispatchToProps(dispacth):{dispacth}
+      //TO 需要增加更新条件-前后两次data不同
       useEffect(()=>{
         subscribe(forceUpdate)
       },[])
-      return <Component {...props} dispacth={dispacth} state={state}/>
+      return <Component {...props} {...newDispacth} {...data}/>
     }
 }
+
 //优化appContext.Provider
 const Provider=({store,children})=>{
     return (

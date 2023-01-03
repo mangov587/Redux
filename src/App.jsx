@@ -22,9 +22,17 @@ const reducer=(state,{type,payload})=>{
 }
 const initState = {
   user: {name: 'frank', age: 18},
-
 }
 const store=createStore(reducer, initState)
+const mapUserStateToProps=state => {
+  return {user: state.user}
+}
+
+const mapUserDispatchToProps=(dispatch)=>{
+  return {
+    updateUser: (attrs)=> dispatch({type: 'updateUser', payload: attrs})
+  }
+}
 export const App = () => {
   //放在这里一旦setAppState，所有子组件重新渲染
   // const [appState, setAppState] = useState({
@@ -41,20 +49,25 @@ export const App = () => {
 }
 const List1 = () => <section>列表1<User/></section>
 const List2 = () => <section>列表2<UserModifier/></section>
+
 const List3 = () => {
   console.log('列表三渲染了')
   return (<section>列表3</section>)
 }
-const User =connect(({state}) => {
+
+
+
+const User =connect()(({state}) => {
   return <div>User:{state.user.name}</div>
 
 })
 
+//const _UserModifier = ({dispacth,state}) => {
+const _UserModifier = ({user,updateUser}) => {
 
-const _UserModifier = ({dispacth,state}) => {
   //const {appState, setAppState} = useContext(appContext)
   const onChange = (e) => {
-    state.user.name = e.target.value
+   
     // 1、初始
     //setAppState({...appState})
     // 2、reducer优化
@@ -69,16 +82,19 @@ const _UserModifier = ({dispacth,state}) => {
      * 3、dispacth优化
      * 修改是state时只需要修改action，setAppState方法不变
      */
-    dispacth({
-      type:'updateUser',
-      payload:{
-        name:e.target.value
-      }
-    })
+    // dispacth({
+    //   type:'updateUser',
+    //   payload:{
+    //     name:e.target.value
+    //   }
+    // })
+
+    //4 、connect
+    updateUser({name:e.target.value})
   }
   return <div>
-    <input value={state.user.name}
+    <input value={user.name}
       onChange={onChange}/>
   </div>
 }
-const UserModifier=connect(_UserModifier)
+const UserModifier=connect(mapUserStateToProps,mapUserDispatchToProps)(_UserModifier)
