@@ -2,35 +2,42 @@
 import React, {useState, useContext} from 'react'
 import {
   appContext,
-  connect
+  connect,
+  Provider,
+  store
 } from './redux'
+
+
 export const App = () => {
-  const [appState, setAppState] = useState({
-    user: {name: 'frank', age: 18}
-  })
-  const contextValue = {appState, setAppState}
+  //放在这里一旦setAppState，所有子组件重新渲染
+  // const [appState, setAppState] = useState({
+  //   user: {name: 'frank', age: 18}
+  // })
+  // const contextValue = {appState, setAppState}
   return (
-    <appContext.Provider value={contextValue}>
+    <Provider store={store}>
       <List1/>
       <List2/>
       <List3/>
-    </appContext.Provider>
+    </Provider>
   )
 }
 const List1 = () => <section>列表1<User/></section>
 const List2 = () => <section>列表2<UserModifier/></section>
-const List3 = () => <section>列表3</section>
-const User = () => {
-  const contextValue = useContext(appContext)
-  return <div>User:{contextValue.appState.user.name}</div>
-
+const List3 = () => {
+  console.log('列表三渲染了')
+  return (<section>列表3</section>)
 }
+const User =connect(({state}) => {
+  return <div>User:{state.user.name}</div>
+
+})
 
 
-const _UserModifier = ({dispacth,appState}) => {
+const _UserModifier = ({dispacth,state}) => {
   //const {appState, setAppState} = useContext(appContext)
   const onChange = (e) => {
-    appState.user.name = e.target.value
+    state.user.name = e.target.value
     // 1、初始
     //setAppState({...appState})
     // 2、reducer优化
@@ -45,6 +52,7 @@ const _UserModifier = ({dispacth,appState}) => {
      * 3、dispacth优化
      * 修改是state时只需要修改action，setAppState方法不变
      */
+    console.log('e.target.value>>>>',e.target.value)
     dispacth({
       type:'updateUser',
       payload:{
@@ -53,7 +61,7 @@ const _UserModifier = ({dispacth,appState}) => {
     })
   }
   return <div>
-    <input value={appState.user.name}
+    <input value={state.user.name}
       onChange={onChange}/>
   </div>
 }
