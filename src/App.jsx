@@ -37,20 +37,44 @@ const reducer=(state,{type,payload})=>{
         return state
   }
 }
-const UserModifier = () => {
-  const {appState, setAppState} = useContext(appContext)
+
+
+
+const _UserModifier = ({dispacth,appState}) => {
+  //const {appState, setAppState} = useContext(appContext)
   const onChange = (e) => {
     appState.user.name = e.target.value
+    // 1、初始
     //setAppState({...appState})
-    setAppState(reducer(appState,{
+    // 2、reducer优化
+    // setAppState(reducer(appState,{
+    //   type:'updateUser',
+    //   payload:{
+    //     name:e.target.value
+    //   }
+    // }))
+
+    /**
+     * 3、dispacth优化
+     * 修改是state时只需要修改action，setAppState方法不变
+     */
+    dispacth({
       type:'updateUser',
       payload:{
         name:e.target.value
       }
-    }))
+    })
   }
   return <div>
     <input value={appState.user.name}
       onChange={onChange}/>
   </div>
+}
+const UserModifier=()=>{
+  const {appState, setAppState} = useContext(appContext)
+  const dispacth=(action)=>{
+    setAppState(reducer(appState,action))
+  }
+  return <_UserModifier dispacth={dispacth} appState={appState}/>
+  
 }
