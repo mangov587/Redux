@@ -13,7 +13,7 @@ const store={
     getState(){
         return state
     },
-    dispacth:(action)=>{
+    dispatch:(action)=>{
         setState(reducer(state,action))   
     },
     subscribe(fn){
@@ -29,8 +29,27 @@ const createStore = (_reducer, initState) => {
     reducer = _reducer
     return store
   }
-  
-const {dispacth}=store
+ //同步dispatch 
+const {dispatch:syncDispatch}=store;
+//异步函数-dispatch 
+let dispatchFn=(action)=>{
+    if(action instanceof Function){
+        action(dispatchFn)
+    }else{
+        syncDispatch(action)
+    }
+}
+//Promise-dispatch 
+const dispatch=(action)=>{
+    
+    if(action.payload instanceof Promise){ 
+        action.payload.then(data=> {
+            dispatch({...action, payload: data})
+          })
+    }else{
+        dispatchFn(action)
+    }
+}
 const connect =(mapStateToProps,mapDispatchToProps)=>(Component) => {
  
     return (props)=>{
@@ -39,12 +58,12 @@ const connect =(mapStateToProps,mapDispatchToProps)=>(Component) => {
       const data=mapStateToProps?mapStateToProps(state):{state};
       mapStateToProps&&console.log(mapStateToProps(state))
 
-     const newDispacth=mapDispatchToProps?mapDispatchToProps(dispacth):{dispacth}
+     const newDispatch=mapDispatchToProps?mapDispatchToProps(dispatch):{dispatch}
       //TO 需要增加更新条件-前后两次data不同
       useEffect(()=>{
         subscribe(forceUpdate)
       },[])
-      return <Component {...props} {...newDispacth} {...data}/>
+      return <Component {...props} {...newDispatch} {...data}/>
     }
 }
 

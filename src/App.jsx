@@ -61,9 +61,22 @@ const User =connect()(({state}) => {
   return <div>User:{state.user.name}</div>
 
 })
+const ajax = () => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve({data: {name: '3秒后的frank'}})
+    }, 3000)
+  })
+}
 
+const fetchUserPromise = () => {
+  return ajax().then(response => response.data)
+}
+const fetchUser = (dispatch) => {
+  return ajax().then(response => dispatch({type: 'updateUser', payload: response.data}))
+}
 //const _UserModifier = ({dispacth,state}) => {
-const _UserModifier = ({user,updateUser}) => {
+const _UserModifier = ({user,dispatch}) => {
 
   //const {appState, setAppState} = useContext(appContext)
   const onChange = (e) => {
@@ -88,13 +101,14 @@ const _UserModifier = ({user,updateUser}) => {
     //     name:e.target.value
     //   }
     // })
-
-    //4 、connect
-    updateUser({name:e.target.value})
+    // dispatch一个请求接口的异步函数
+    dispatch(fetchUser)
+     // payload 是一个Promise
+    //dispatch({type: 'updateUser', payload: fetchUserPromise()})
   }
   return <div>
     <input value={user.name}
       onChange={onChange}/>
   </div>
 }
-const UserModifier=connect(mapUserStateToProps,mapUserDispatchToProps)(_UserModifier)
+const UserModifier=connect(mapUserStateToProps)(_UserModifier)
