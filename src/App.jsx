@@ -1,7 +1,9 @@
 
 import React, {useState, useContext} from 'react'
-
-const appContext = React.createContext(null)
+import {
+  appContext,
+  connect
+} from './redux'
 export const App = () => {
   const [appState, setAppState] = useState({
     user: {name: 'frank', age: 18}
@@ -23,30 +25,7 @@ const User = () => {
   return <div>User:{contextValue.appState.user.name}</div>
 
 }
-const reducer=(state,{type,payload})=>{
-  switch (type){
-    case 'updateUser':
-      return {
-        ...state,
-        user: {
-          ...state.user,
-          ...payload
-        }
-      }
-      default:
-        return state
-  }
-}
 
-const connect = (Component) => {
-  return (props)=>{
-    const {appState, setAppState} = useContext(appContext)
-    const dispacth=(action)=>{
-      setAppState(reducer(appState,action))
-    }
-    return <Component {...props} dispacth={dispacth} appState={appState}/>
-  }
-}
 
 const _UserModifier = ({dispacth,appState}) => {
   //const {appState, setAppState} = useContext(appContext)
