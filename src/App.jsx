@@ -1,13 +1,30 @@
 
 import React, {useState, useContext} from 'react'
 import {
-  appContext,
+  createStore,
   connect,
   Provider,
-  store
 } from './redux'
 
+const reducer=(state,{type,payload})=>{
+  switch (type){
+    case 'updateUser':
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          ...payload
+        }
+      }
+      default:
+        return state
+  }
+}
+const initState = {
+  user: {name: 'frank', age: 18},
 
+}
+const store=createStore(reducer, initState)
 export const App = () => {
   //放在这里一旦setAppState，所有子组件重新渲染
   // const [appState, setAppState] = useState({
@@ -52,7 +69,6 @@ const _UserModifier = ({dispacth,state}) => {
      * 3、dispacth优化
      * 修改是state时只需要修改action，setAppState方法不变
      */
-    console.log('e.target.value>>>>',e.target.value)
     dispacth({
       type:'updateUser',
       payload:{

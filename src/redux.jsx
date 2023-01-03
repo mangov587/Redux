@@ -1,45 +1,43 @@
 import React, {useState, useContext, useReducer, useEffect} from 'react'
 const appContext = React.createContext(null)
+const listeners=[];
+let state=undefined;
+let reducer=undefined;
+const  setState=(val)=>{
+    // console.log('store.state>>>',store.state)
+     //state变了，但是页面未更新
+     state=val
+     listeners.forEach(fn=>fn())
+}
 const store={
-    state:{
-      user: {name: 'frank', age: 18}
+    getState(){
+        return state
     },
-    setState(val){
-     // console.log('store.state>>>',store.state)
-      //state变了，但是页面未更新
-      store.state=val
-      store.listeners.forEach(fn=>fn())
+    dispacth:(action)=>{
+        setState(reducer(state,action))   
     },
-    listeners:[],
     subscribe(fn){
-       store.listeners.push(fn)
+       listeners.push(fn)
        return (fn)=>{
-        store.listeners.filter(item=>item!=fn)
+        listeners.filter(item=>item!=fn)
        }
     },
   }
-const reducer=(state,{type,payload})=>{
-    switch (type){
-      case 'updateUser':
-        return {
-          ...state,
-          user: {
-            ...state.user,
-            ...payload
-          }
-        }
-        default:
-          return state
-    }
+const createStore = (_reducer, initState) => {
+    console.log('createStore')
+    state = initState
+    reducer = _reducer
+    return store
   }
   
+const {dispacth}=store
 const connect = (Component) => {
+ 
     return (props)=>{
-      const {state, setState,subscribe} = useContext(appContext)
+      //const {state,subscribe} = useContext(appContext)
+      const {getState,subscribe} = store
       const [,forceUpdate]=useReducer((x)=>x+1,0)//更新
-      const dispacth=(action)=>{
-        setState(reducer(state,action))   
-      }
+     const state=getState()
       //更新
       useEffect(()=>{
         subscribe(forceUpdate)
@@ -56,8 +54,7 @@ const Provider=({store,children})=>{
     )
 }
 export {
-    appContext,
     connect,
     Provider,
-    store
+    createStore
 }
